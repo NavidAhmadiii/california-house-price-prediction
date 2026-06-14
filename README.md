@@ -1,5 +1,3 @@
-Here's the complete README in a single Markdown block. Replace the `{...}` placeholders with the actual numbers from your notebooks, or just keep them as is for now—you can update after a quick re-run.
-
 ```markdown
 # California House Price Prediction
 
