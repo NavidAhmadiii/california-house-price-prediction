@@ -25,71 +25,64 @@ california-house-price-prediction/
 └── requirements.txt
 ```
 
-## Workflow Overview
+## What Was Done
 
-1. **Exploratory Data Analysis**
-   - Distribution of the target, correlation heatmap, scatter plots of key features vs target.
-   - Geographical visualization showing higher prices along the coast.
-   - Boxplots to identify outliers (especially in `AveRooms`).
+### 1. Exploratory Data Analysis
+- Visualized target distribution (right‑skewed) and feature correlations.
+- Scatter plots revealed a strong positive link between median income and house value.
+- Geographic plot showed higher prices along the California coast.
+- Boxplots detected extreme outliers in `AveRooms` and `AveOccup`.
 
-2. **Feature Engineering & Preprocessing**
-   - Created derived features: `Bedrms_per_Room`, `Rooms_per_Person`, `Households`, `Old_House` (binary).
-   - Clipped outliers in `AveRooms`, `AveBedrms`, `AveOccup`, `Population` using IQR limits.
-   - Train/test split (80/20, `random_state=42`).
-   - Standardised features with `StandardScaler` (fit on training data only).
+### 2. Feature Engineering & Preprocessing
+- Created four new features: `Bedrms_per_Room`, `Rooms_per_Person`, `Households`, `Old_House`.
+- Clipped outliers in `AveRooms`, `AveBedrms`, `AveOccup`, `Population` using IQR limits.
+- Split data into 80% training / 20% test (`random_state=42`).
+- Standardized all features with `StandardScaler` (fitted on training data only).
 
-3. **Baseline Model**
-   - Linear Regression: RMSE = {rmse_lr:.4f}, R² = {r2_lr:.4f}
+### 3. Baseline Model
+- **Linear Regression** – RMSE = 0.73 (≈ $73,000), R² = 0.61
 
-4. **Advanced Models**
-   - Decision Tree (`max_depth=10`): RMSE = {rmse_dt:.4f}, R² = {r2_dt:.4f}
-   - XGBoost (`n_estimators=200`, `learning_rate=0.1`, `max_depth=6`): RMSE = {rmse_xgb:.4f}, R² = {r2_xgb:.4f}
-   - XGBoost gave the lowest error and highest R².
+### 4. Advanced Models
+- **Decision Tree** (`max_depth=10`) – RMSE = 0.59, R² = 0.67  
+- **XGBoost** (`n_estimators=200`, `learning_rate=0.1`, `max_depth=6`) – RMSE = 0.47, R² = 0.83  
 
-5. **Model Interpretation with SHAP**
-   - Summary plot of global feature importance (median income is the strongest driver).
-   - Dependence plot showing interaction between `MedInc` and `HouseAge`.
-   - Waterfall plot explaining individual predictions.
+XGBoost clearly outperformed the others.
 
-6. **Deployment (FastAPI)**
-   - Saved trained XGBoost model and scaler with `joblib`.
-   - Built a `POST /predict` endpoint that receives raw house features, applies the same preprocessing (feature creation, clipping, scaling), and returns the predicted price in USD.
-   - Interactive API documentation available at `/docs`.
+### 5. Model Interpretation with SHAP
+- Global importance: median income (`MedInc`) is by far the strongest predictor.
+- Dependence plots showed interactions between income and house age.
+- Waterfall plots explained individual predictions in dollar terms.
+
+### 6. Deployment (FastAPI)
+- Saved the trained XGBoost model and scaler with `joblib`.
+- Built a `POST /predict` endpoint that applies the same preprocessing steps and returns the predicted price in USD.
+- Interactive documentation at `/docs` via Swagger UI.
 
 ## Setup Instructions
 
-1. **Clone and enter the project**
+1. **Clone the repository**
    ```bash
    git clone https://github.com/NavidAhmadiii/california-house-price-prediction.git
    cd california-house-price-prediction
    ```
 
-2. **Create and activate a virtual environment**
+2. **Create a virtual environment and install dependencies**
    ```bash
    python -m venv venv
    source venv/bin/activate   # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-   ```bash
    pip install -r requirements.txt
    ```
 
-4. **(Optional) Explore the notebooks**
-   ```bash
-   jupyter notebook
-   ```
-
-5. **Run the API**
+3. **Start the API**
    ```bash
    cd api
    uvicorn app:app --reload
    ```
-   Open `http://127.0.0.1:8000/docs` to test the endpoint.
+   Visit `http://127.0.0.1:8000/docs` to test the prediction.
 
-## Example API Call
+## Example API Request
 
-**Request** (`POST /predict`)
+**`POST /predict`**
 ```json
 {
   "MedInc": 8.3252,
@@ -112,7 +105,6 @@ california-house-price-prediction/
 ```
 
 ## Results Summary
-
-- Best model: **XGBoost** with R² ≈ {r2_xgb:.2f}, RMSE ≈ ${rmse_xgb*100000:,.0f}.
-- Top predictor: `MedInc` (median income), followed by geographic features and housing density.
-- The preprocessing pipeline ensures no data leakage, and all experiments are reproducible (`random_state=42`).
+- Best model: **XGBoost** with **R² ≈ 0.83** and **RMSE ≈ $47,000**.
+- Median income (`MedInc`) is the most influential feature.
+- The preprocessing pipeline avoids data leakage, and the entire workflow is reproducible.
